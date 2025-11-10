@@ -1,5 +1,5 @@
 //Change this to your backend 1
-const backendUrl = "https://cheese-backend-x01h.onrender.com";
+const backendUrl = "https://mallowmoonscents-backend.onrender.com";
 function order(){
     window.location.href="buy.html"
 }
