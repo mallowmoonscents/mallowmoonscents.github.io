@@ -1,0 +1,149 @@
+<!-- Follow the in-page instructions to change this file -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Change this to what you whant (This dissplys at tab)-->
+    <title>Cheese Factory | Basket</title>
+    <!--Add a disscription this is what appers on the google page-->
+    <meta name="description"
+        content="Discover Cheese Factory’s handmade artisan cheeses, new seasonal flavors, and gift boxes. Freshly crafted and delivered to your door.">
+    <!--This is key words helps your seach apperance-->
+    <meta name="keywords"
+        content="Cheese Factory, artisan cheese, seasonal cheese, buy cheese online, British cheese, handmade dairy products">
+    <!--This link links to your home page (yourbissness.github.io)-->
+    <link rel="canonical" href="https://theorangecow.github.io/cheese/">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="https://theorangecow.github.io/cheese/images/logo/logo.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <!--The title at the top of the page-->
+        <h1>Cheese Factory</h1>
+    </header>
+
+    <nav>
+        <!--This is the nav bar if you change something here you have to change it in every file-->
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="basket.html">Basket</a>
+    </nav>
+
+    <div class="container">
+        <div class="basket" id="basket">
+            <p>Loading your basket...</p>
+        </div>
+        <button id ="order" onclick="order()" disabled>Conform your order</button>
+    </div>
+
+    <br>
+        <footer>
+            <!--Change this to your company (You have to change this one every page)-->
+            <p>&copy; 2025 Cheese Factory. All rights reserved.</p>
+            <p>Made with love in the UK | <a href="contact.html">Contact Us</a></p>
+            <div class="social-links">
+                <!--Add your link were the _blank  (/@bob for tiktok) -->
+                <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://x.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            </div>
+        </footer>
+    <script src="buy.js"></script>
+    <script src="script.js"></script>
+    <script>
+        async function dissply() {
+            const data = await cost();
+            const container = document.getElementById("basket");
+            const response = await fetch('products.json');
+            const products = await response.json();
+            container.innerHTML = "";
+
+            if (!data || data.error || !data.items || data.items.length === 0) {
+                container.innerHTML = '<p class="empty">Nothing in your basket</p>';
+                return;
+            }else{
+                document.getElementById("order").disabled = false;
+            }
+
+            data.items.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (!product) return;
+                const displayImage = Array.isArray(product.image) ? product.image[0] : product.image;
+
+                const row = document.createElement("div");
+                row.className = "product-row";
+                row.innerHTML = `
+                    <div class="product-info">
+                        <img src="${displayImage}" alt="${product.name}">
+                        <div>
+                            <div class="product-name"><strong>${item.name}</strong></div>
+                            <div class="quantity" data-id="${item.id}">${item.quantity}</div>
+                            <p>Unit price: £${item.unit_price}</p>
+                            <p>Total: £${item.total_price}</p>
+                        </div>
+                    </div>
+                    <button class="delete-btn" data-id="${product.id}">Delete</button>
+                `;
+                container.appendChild(row);
+
+
+            });
+
+
+            const summary = document.createElement("div");
+            summary.className = "basket-summary";
+            summary.innerHTML = `
+                <p>Shipping: £${data.shipping}</p>
+                <p>Card transaction fee: £${data.card_fee}</p>
+                <h3>Total: £${data.total}</h3>
+            `;
+            container.appendChild(summary);
+
+            container.querySelectorAll('.quantity').forEach(span => {
+                span.addEventListener('dblclick', () => {
+                    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                    const id = parseInt(span.dataset.id);
+                    span.contentEditable = true;
+                    span.classList.add('editing');
+                    span.focus();
+
+                    span.addEventListener('blur', () => {
+                        span.contentEditable = false;
+                        span.classList.remove('editing');
+
+                        let newQty = parseInt(span.textContent.trim());
+                        if (isNaN(newQty) || newQty < 1) newQty = 1;
+                        span.textContent = newQty;
+
+                        const cartItem = cart.find(i => i.id === id);
+                        if (cartItem) cartItem.quantity = newQty;
+
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        dissply();
+                    }, { once: true });
+                });
+            });
+
+            container.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                    const id = parseInt(e.target.dataset.id);
+                    cart = cart.filter(i => i.id !== id);
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    dissply();
+                });
+            });
+
+        }
+        dissply()
+    </script>
+</body>
+
+</html>

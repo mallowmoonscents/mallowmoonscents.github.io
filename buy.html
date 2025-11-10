@@ -1,0 +1,190 @@
+<!-- Follow the in-page instructions to change this file -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Change this to what you whant (This dissplys at tab)-->
+    <title>Cheese Factory</title>
+    <!--Add a disscription this is what appers on the google page-->
+    <meta name="description"
+        content="Discover Cheese Factory’s handmade artisan cheeses, new seasonal flavors, and gift boxes. Freshly crafted and delivered to your door.">
+    <!--This is key words helps your seach apperance-->
+    <meta name="keywords"
+        content="Cheese Factory, artisan cheese, seasonal cheese, buy cheese online, British cheese, handmade dairy products">
+    <!--This link links to your home page (yourbissness.github.io)-->
+    <link rel="canonical" href="https://theorangecow.github.io/cheese/">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="https://theorangecow.github.io/cheese/images/logo/logo.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <!--Chenge the title (This is at the top of the page)-->
+        <h1>Cheese Factory</h1>
+    </header>
+    </header>
+    <nav>
+        <!--This is the nav bar under the title if you change something here you need to update it on every page-->
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="basket.html">Basket</a>
+    </nav>
+    <div class="container">
+        <div id="personalInfo" class="personal-info">
+            <h3>Your Details</h3>
+            <p id="pi-name"></p>
+            <p id="pi-contact"></p>
+            <p id="pi-address"></p>
+            <a href="personal_info.html">Edit</a>
+        </div>
+        <h2>Conferm your order</h2>
+        <div id="list"></div>
+    </div>
+    <br>
+    <footer>
+        <!--Change this to your company (You have to change this one every page)-->
+        <p>&copy; 2025 Cheese Factory. All rights reserved.</p>
+        <p>Made with love in the UK | <a href="contact.html">Contact Us</a></p>
+        <div class="social-links">
+            <!--Add your link were the _blank  (/@bob for tiktok) -->
+            <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://x.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+        </div>
+    </footer>
+    <script src="buy.js"></script>
+    <script src="script.js"></script>
+    <script>
+        async function dissply() {
+            const data = await cost();
+            console.log(data);
+            const container = document.getElementById("list");
+            container.innerHTML = "";
+
+            // If error or no items
+            if (!data || data.error || !data.items || data.items.length === 0) {
+                container.innerHTML = '<p class="empty">Error: nothing in your basket</p>';
+                return;
+            }
+
+            let total_price = 0;
+
+            // Display each item
+            data.items.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "basket-item";
+                row.innerHTML = `
+            <div class="product-info">
+                <p><strong>${item.name}</strong></p>
+                <p>Quantity: ${item.quantity}</p>
+                <p>Unit price: £${item.unit_price.toFixed(2)}</p>
+                <p>Total: £${item.total_price.toFixed(2)}</p>
+            </div>
+        `;
+                container.appendChild(row);
+                total_price += item.total_price;
+            });
+
+            // Add totals
+            const summary = document.createElement("div");
+            summary.className = "basket-summary";
+            summary.innerHTML = `
+        <hr>
+        <p>Shipping: £${data.shipping.toFixed(2)}</p>
+        <p>Card transaction fee: £${data.card_fee.toFixed(2)}</p>
+        <h3>Total: £${data.total.toFixed(2)} (Tax included)</h3>
+        <button id="buyBtn">Buy now</button>
+    `;
+            container.appendChild(summary);
+
+            // Attach event listener after button is created
+            document.getElementById("buyBtn").addEventListener("click", handleBuyClick);
+        }
+
+        // Prevent multiple sends and show loading box
+        let isBuying = false;
+
+        async function handleBuyClick() {
+            if (isBuying) return; // stop if already clicked
+            isBuying = true;
+
+            // Disable button
+            const btn = document.getElementById("buyBtn");
+            btn.disabled = true;
+            btn.textContent = "Processing...";
+
+            // Show loading overlay
+            const loadingBox = document.createElement("div");
+            loadingBox.style.position = "fixed";
+            loadingBox.style.top = "0";
+            loadingBox.style.left = "0";
+            loadingBox.style.width = "100vw";
+            loadingBox.style.height = "100vh";
+            loadingBox.style.background = "rgba(0,0,0,0.6)";
+            loadingBox.style.display = "flex";
+            loadingBox.style.justifyContent = "center";
+            loadingBox.style.alignItems = "center";
+            loadingBox.style.zIndex = "9999";
+            loadingBox.innerHTML = `
+        <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            max-width: 300px;
+        ">
+            <p>Processing your order...</p>
+            <p>This will take less than a minute.</p>
+        </div>
+    `;
+            document.body.appendChild(loadingBox);
+
+            try {
+                await buy(); // your existing buy() function from buy.js
+                loadingBox.innerHTML = `
+            <div style="background:white;padding:30px;border-radius:12px;text-align:center;">
+                <strong>Order complete!</strong><br>Thank you for your purchase.
+            </div>`;
+                setTimeout(() => {
+                    loadingBox.remove();
+                }, 2000);
+            } catch (err) {
+                console.error("Error:", err);
+                loadingBox.innerHTML = `
+            <div style="background:white;padding:30px;border-radius:12px;text-align:center;">
+                <strong>Something went wrong.</strong><br>Please try again.
+            </div>`;
+                setTimeout(() => loadingBox.remove(), 3000);
+            } finally {
+                isBuying = false;
+                btn.disabled = false;
+                btn.textContent = "Buy now";
+            }
+        }
+
+        function displayPersonalInfo() {
+            const info = JSON.parse(localStorage.getItem("userInfo"));
+            if (!info || !info.name || !info.contact || !info.address) {
+                window.location.href = "personal_info.html";
+                return;
+            }
+
+            document.getElementById("pi-name").textContent = `Name: ${info.name}`;
+            document.getElementById("pi-contact").textContent = `Contact: ${info.contact}`;
+            document.getElementById("pi-address").textContent =
+                `Address: ${info.address.line1}, ${info.address.postcode}, ${info.address.country}`;
+        }
+
+        dissply().then(() => displayPersonalInfo());
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,218 @@
+<!-- Follow the in-page instructions to change this file -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Change this to what you whant (This dissplys at tab)-->
+    <title>Cheese Factory</title>
+    <!--Add a disscription this is what appers on the google page-->
+    <meta name="description"
+        content="Discover Cheese Factory’s handmade artisan cheeses, new seasonal flavors, and gift boxes. Freshly crafted and delivered to your door.">
+    <!--This is key words helps your seach apperance-->
+    <meta name="keywords"
+        content="Cheese Factory, artisan cheese, seasonal cheese, buy cheese online, British cheese, handmade dairy products">
+    <!--This link links to your home page (yourbissness.github.io)-->
+    <link rel="canonical" href="https://theorangecow.github.io/cheese/">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="https://theorangecow.github.io/cheese/images/logo/logo.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <!--The title at the top of the page-->
+        <h1>Cheese Factory</h1>
+    </header>
+
+    <nav>
+        <!--This is the nav bar if you change something here you have to change it in every file-->
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="basket.html">Basket</a>
+    </nav>
+
+    <div class="container" id="product-container">
+        <p>Loading product...</p>
+    </div>
+
+    <br>
+    <footer>
+        <!--Change this to your company (You have to change this one every page)-->
+        <p>&copy; 2025 Cheese Factory. All rights reserved.</p>
+        <p>Made with love in the UK | <a href="contact.html">Contact Us</a></p>
+        <div class="social-links">
+            <!--Add your link were the _blank  (/@bob for tiktok) -->
+            <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://x.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+    <script>
+        async function loadProduct() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = parseInt(params.get('id'), 10);
+            if (!productId) return document.getElementById('product-container').innerHTML = '<p>Invalid product ID.</p>';
+
+            try {
+                const response = await fetch('products.json');
+                if (!response.ok) throw new Error('Failed to fetch products');
+                const products = await response.json();
+
+                const product = products.find(p => p.id === productId);
+                if (!product) return document.getElementById('product-container').innerHTML = '<p>Product not found.</p>';
+
+                const container = document.getElementById('product-container');
+
+                container.innerHTML = `
+                    <div class="product-images">
+                        ${!product.in_stock ? '<span class="out-of-stock-text">Out of Stock</span>' : ''}
+                        <img id="product-image" src="${Array.isArray(product.image) ? product.image[0] : product.image}" alt="${product.name}">
+                        <div class="dots" id="dots-container"></div>
+                    </div>
+                    <div class="product-details">
+                        <h2>${product.name}</h2>
+                        <div class="price">£${product.price.toFixed(2)}</div>
+                        <p>${product.description}</p>
+                        <div class="quantity-box">
+                            <button id="decrease" class="qty-btn" ${!product.in_stock ? 'disabled' : ''}>−</button>
+                            <span id="quantity">1</span>
+                            <button id="increase" class="qty-btn" ${!product.in_stock ? 'disabled' : ''}>+</button>
+                        </div><br><br>
+                        <button id = "add-to-basket" ${!product.in_stock ? 'disabled' : ''}>Add to Basket</button>
+                    </div>
+                    <h3 style="margin-top:40px;">More Like This</h3>
+                    <div class="more-products" id="more-products" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:20px;"></div>
+                `;
+
+                // ------------------- Slideshow -------------------
+                const imageElement = document.getElementById('product-image');
+                const dotsContainer = document.getElementById('dots-container');
+                const images = Array.isArray(product.image) ? product.image : [product.image];
+                let currentIndex = 0;
+
+                images.forEach((_, idx) => {
+                    const dot = document.createElement('span');
+                    dot.classList.add('dot');
+                    if (idx === 0) dot.classList.add('active');
+                    dot.addEventListener('click', () => {
+                        currentIndex = idx;
+                        updateSlideshow();
+                        resetAutoSlide();
+                    });
+                    dotsContainer.appendChild(dot);
+                });
+
+                const dotElements = dotsContainer.querySelectorAll('.dot');
+
+                function updateSlideshow() {
+                    imageElement.src = images[currentIndex];
+                    dotElements.forEach((dot, idx) => {
+                        dot.classList.toggle('active', idx === currentIndex);
+                    });
+                }
+
+                let autoSlide = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    updateSlideshow();
+                }, 3000);
+
+                function resetAutoSlide() {
+                    clearInterval(autoSlide);
+                    autoSlide = setInterval(() => {
+                        currentIndex = (currentIndex + 1) % images.length;
+                        updateSlideshow();
+                    }, 3000);
+                }
+
+                // ------------------- More Like This -------------------
+                const moreContainer = document.getElementById('more-products');
+                let sameCategory = products.filter(p => p.category === product.category && p.id !== product.id);
+
+                function shuffleArray(array) {
+                    return array.sort(() => Math.random() - 0.5);
+                }
+
+                sameCategory = shuffleArray(sameCategory);
+                let moreProducts = sameCategory.slice(0, 6);
+
+                if (moreProducts.length < 6) {
+                    const remaining = 6 - moreProducts.length;
+                    const featured = products.filter(p => p.featured && p.id !== product.id && !moreProducts.includes(p));
+                    moreProducts = moreProducts.concat(shuffleArray(featured).slice(0, remaining));
+                }
+
+                moreProducts.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'product';
+                    div.style.cursor = 'pointer';
+                    div.addEventListener('click', () => {
+                        window.location.href = `product.html?id=${p.id}`;
+                    });
+
+                    const displayImage = Array.isArray(p.image) ? p.image[0] : p.image;
+
+                    div.innerHTML = `
+                <img src="${displayImage}" alt="${p.name}" style="width:100%; height:150px; object-fit:cover; border-radius:5px;">
+                <h4 style="margin:5px 0;">${p.name}</h4>
+                <div>£${p.price.toFixed(2)}</div>
+            `;
+                    moreContainer.appendChild(div);
+                });
+
+                // ------------------- Add to Basket -------------------
+
+
+                const button = container.querySelector('#add-to-basket');
+                const quantityDisplay = container.querySelector('#quantity');
+                let qty = 1;
+
+                container.querySelector('#increase').addEventListener('click', () => {
+                    qty++;
+                    quantityDisplay.textContent = qty;
+                });
+
+                container.querySelector('#decrease').addEventListener('click', () => {
+                    if (qty > 1) {
+                        qty--;
+                        quantityDisplay.textContent = qty;
+                    }
+                });
+
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+
+
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+                    const existing = cart.find(item => item.id === product.id);
+                    if (existing) {
+                        existing.quantity += qty;
+                    } else {
+                        cart.push({ id: product.id, quantity: qty });
+                    }
+
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    alert(`Added ${qty} of ${product.name} to your basket`)
+                });
+
+
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('product-container').innerHTML = '<p>Failed to load product. Please try again later.</p>';
+            }
+        }
+
+        loadProduct();
+    </script>
+
+</body>
+
+</html>

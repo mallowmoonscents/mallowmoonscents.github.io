@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--Change this to what you whant (This dissplys at tab)-->
-    <title>Cheese Factory | Artisan Cheeses & Seasonal Flavors</title>
+    <title>Cheese Factory | Products</title>
     <!--Add a disscription this is what appers on the google page-->
     <meta name="description"
         content="Discover Cheese Factory’s handmade artisan cheeses, new seasonal flavors, and gift boxes. Freshly crafted and delivered to your door.">
@@ -34,33 +34,19 @@
         <a href="contact.html">Contact</a>
         <a href="basket.html">Basket</a>
     </nav>
+
     <div class="container">
-        <div class="about">
-            <!--Change this to your story-->
-            <h2>About Cheese Factory</h2>
-            <p>We’re a family-run dairy crafting artisan cheeses in the heart of the countryside since 1985. Every wheel
-                is made by hand using local milk and traditional techniques, ensuring the finest taste and texture.</p>
-            <p>From our creamy cheddar to our adventurous seasonal blends, every bite supports sustainable farming and
-                British craftsmanship.</p>
-            <a href="about.html">Learn More</a>
+        <div class="filter-bar">
+            <input type="text" id="search-input" placeholder="Search products...">
+            <select id="category-filter">
+                <option value="all">All Categories</option>
+            </select>
         </div>
-        <br>
-        <div class="featured">
-            <h2>Featured Products</h2>
-            <div class="product-grid" id="home-products"></div>
-        </div>
-        <br>
-        <div class="newsletter">
-            <!--Lean how to use thin in the instructions-->
-            <h2>Join Our Cheese Lovers Club</h2>
-            <p>Be the first to know about new flavors and special offers!</p>
-            <form id="newsletter-form">
-                <input type="email" id="newsletter-email" placeholder="Enter your email address" required>
-                <button type="submit" on>Subscribe</button>
-            </form>
-            <p id="newsletter-message" style="display:none;">Thanks for joining!</p>
-        </div>
+
+        <h2>All Products</h2>
+        <div class="product-grid" id="all-products"></div>
     </div>
+
     <br>
     <footer>
         <!--Change this to your company (You have to change this one every page)-->
@@ -74,14 +60,52 @@
             <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
         </div>
     </footer>
-
-    <script src="shop.js"></script>
     <script src="script.js"></script>
-    <script src="news.js"></script>
+    <script src="shop.js"></script>
     <script>
-        const homeContainer = document.getElementById('home-products');
-        loadProducts(homeContainer, { featuredOnly: true });
+        const allContainer = document.getElementById('all-products');
+        const searchInput = document.getElementById('search-input');
+        const categorySelect = document.getElementById('category-filter');
+        loadProducts(allContainer, { featuredOnly: false });
+
+        let allProducts = [];
+
+        async function init() {
+            const url = 'products.json';
+            const response = await fetch(url);
+            allProducts = await response.json();
+
+            const categories = [...new Set(allProducts.map(p => p.category))];
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value  = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categorySelect.value;
+
+            const filtered = allProducts.filter(product => {
+                const matchesSearch =
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm); // <-- added
+                const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            loadProducts(allContainer, { featuredOnly: false, overrideProducts: filtered });
+        }
+
+
+        searchInput.addEventListener('input', applyFilters);
+        categorySelect.addEventListener('change', applyFilters);
+
+        init();
     </script>
 </body>
-
 </html>

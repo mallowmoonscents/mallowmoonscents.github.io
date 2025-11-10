@@ -6,11 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--Change this to what you whant (This dissplys at tab)-->
-    <title>Cheese Factory | Artisan Cheeses & Seasonal Flavors</title>
+    <title>Cheese Factory | About</title>
     <!--Add a disscription this is what appers on the google page-->
     <meta name="description"
         content="Discover Cheese Factory’s handmade artisan cheeses, new seasonal flavors, and gift boxes. Freshly crafted and delivered to your door.">
-    <!--This is key words helps your seach apperance-->
     <meta name="keywords"
         content="Cheese Factory, artisan cheese, seasonal cheese, buy cheese online, British cheese, handmade dairy products">
     <!--This link links to your home page (yourbissness.github.io)-->
@@ -34,34 +33,32 @@
         <a href="contact.html">Contact</a>
         <a href="basket.html">Basket</a>
     </nav>
+
     <div class="container">
-        <div class="about">
-            <!--Change this to your story-->
-            <h2>About Cheese Factory</h2>
-            <p>We’re a family-run dairy crafting artisan cheeses in the heart of the countryside since 1985. Every wheel
-                is made by hand using local milk and traditional techniques, ensuring the finest taste and texture.</p>
-            <p>From our creamy cheddar to our adventurous seasonal blends, every bite supports sustainable farming and
-                British craftsmanship.</p>
-            <a href="about.html">Learn More</a>
-        </div>
-        <br>
-        <div class="featured">
-            <h2>Featured Products</h2>
-            <div class="product-grid" id="home-products"></div>
-        </div>
-        <br>
-        <div class="newsletter">
-            <!--Lean how to use thin in the instructions-->
-            <h2>Join Our Cheese Lovers Club</h2>
-            <p>Be the first to know about new flavors and special offers!</p>
-            <form id="newsletter-form">
-                <input type="email" id="newsletter-email" placeholder="Enter your email address" required>
-                <button type="submit" on>Subscribe</button>
-            </form>
-            <p id="newsletter-message" style="display:none;">Thanks for joining!</p>
+        <h2>About</h2>
+        <h3>Our Story</h3>
+        <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar
+            vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc
+            posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra
+            inceptos himenaeos.</p>
+        <div class="text-image">
+            <!--Change this by uploding an imge in the exact same place and call it the same thing then remove the origne imige-->
+            <img src="https://theorangecow.github.io/cheese/images/profile-pic.png" alt="Charlie Smith, founder of Cheese Factory">
+            <div class="text">
+                <h3>Charlie Smith</h3>
+                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque
+                    sem
+                    placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor.
+                    Pulvinar
+                    vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer
+                    nunc
+                    posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra
+                    inceptos himenaeos.</p>
+            </div>
         </div>
     </div>
-    <br>
+
     <footer>
         <!--Change this to your company (You have to change this one every page)-->
         <p>&copy; 2025 Cheese Factory. All rights reserved.</p>
@@ -74,14 +71,7 @@
             <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
         </div>
     </footer>
-
-    <script src="shop.js"></script>
     <script src="script.js"></script>
-    <script src="news.js"></script>
-    <script>
-        const homeContainer = document.getElementById('home-products');
-        loadProducts(homeContainer, { featuredOnly: true });
-    </script>
 </body>
 
 </html>

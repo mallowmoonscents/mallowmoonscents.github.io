@@ -1,0 +1,194 @@
+<!-- Follow the in-page instructions to change this file -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--Change this to what you whant (This dissplys at tab)-->
+  <title>Cheese Factory | Info form</title>
+  <!--Add a disscription this is what appers on the google page-->
+  <meta name="description"
+    content="Discover Cheese Factory’s handmade artisan cheeses, new seasonal flavors, and gift boxes. Freshly crafted and delivered to your door.">
+  <!--This is key words helps your seach apperance-->
+  <meta name="keywords"
+    content="Cheese Factory, artisan cheese, seasonal cheese, buy cheese online, British cheese, handmade dairy products">
+  <!--This link links to your home page (yourbissness.github.io)-->
+  <link rel="canonical" href="https://theorangecow.github.io/cheese/">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/x-icon" href="https://theorangecow.github.io/cheese/images/logo/logo.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body>
+  <header>
+    <!--The title at the top of the page-->
+    <h1>Cheese Factory</h1>
+  </header>
+
+  <nav>
+    <!--This is the nav bar if you change something here you have to change it in every file-->
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="products.html">Products</a>
+    <a href="contact.html">Contact</a>
+    <a href="basket.html">Basket</a>
+  </nav>
+  <br>
+  <form class="pform" id="infoForm">
+    <label class="plabel">Name</label>
+    <input class="pinput" type="text" id="name" placeholder="John Smith" />
+    <small class="psmall" id="nameError">Name must be at least 2 characters.</small>
+
+    <label class="plabel">Email or Phone</label>
+    <input class="pinput" type="text" id="contact" placeholder="email@example.com or +447123456789" />
+    <small class="psmall" id="contactError">Please enter a valid email or phone number.</small>
+
+    <label class="plabel">Search Address</label>
+    <div class="field">
+      <input class="pinput" type="text" id="addressSearch" placeholder="Search for your address...(Not required)"
+        autocomplete="off" />
+      <div id="suggestions"></div>
+    </div>
+
+    <label class="plabel">Address Line 1</label>
+    <input class="pinput" class="pinput" type="text" id="addressLine1" placeholder="123 Example Street" />
+    <small class="psmall" id="addressLine1Error">Address line 1 is required.</small>
+
+    <label class="plabel">Postcode</label>
+    <input class="pinput" type="text" id="postcode" placeholder="e.g. SW1A 1AA" />
+    <small class="psmall" id="postcodeError">Please enter a valid postcode.</small>
+
+    <label class="plabel">Country</label>
+    <select class="pselect" id="country">
+      <option value="United Kingdom" selected>United Kingdom</option>
+      <option value="United States">United States</option>
+      <option value="Canada">Canada</option>
+      <option value="Australia">Australia</option>
+      <option value="Other">Other</option>
+    </select>
+    <br>
+    <button type="submit">Submit</button>
+  </form>
+  <br>
+  <footer>
+    <!--Change this to your company (You have to change this one every page)-->
+    <p>&copy; 2025 Cheese Factory. All rights reserved.</p>
+    <p>Made with love in the UK | <a href="contact.html">Contact Us</a></p>
+    <div class="social-links">
+      <!--Add your link were the _blank  (/@bob for tiktok) -->
+      <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+      <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="https://x.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+  <script>
+    const nameInput = document.getElementById("name");
+    const contactInput = document.getElementById("contact");
+    const addressSearch = document.getElementById("addressSearch");
+    const addressLine1 = document.getElementById("addressLine1");
+    const postcode = document.getElementById("postcode");
+    const country = document.getElementById("country");
+    const card = document.getElementById("card");
+
+    const suggestionsBox = document.getElementById("suggestions");
+
+    const nameError = document.getElementById("nameError");
+    const contactError = document.getElementById("contactError");
+    const addressLine1Error = document.getElementById("addressLine1Error");
+    const postcodeError = document.getElementById("postcodeError");
+
+    // --- Validation ---
+    function validate(input) {
+      if (input === nameInput) {
+        nameError.style.display = nameInput.value.trim().length < 2 ? "block" : "none";
+      }
+      if (input === contactInput) {
+        const val = contactInput.value.trim();
+        const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val) || /^\+\d{7,15}$/.test(val);
+        contactError.style.display = valid ? "none" : "block";
+      }
+      if (input === addressLine1) {
+        addressLine1Error.style.display = addressLine1.value.trim().length < 3 ? "block" : "none";
+      }
+      if (input === postcode) {
+        postcodeError.style.display = postcode.value.trim().length < 4 ? "block" : "none";
+      }
+    }
+
+    [nameInput, contactInput, addressLine1, postcode].forEach(i => {
+      i.addEventListener("input", () => validate(i));
+    });
+
+    // --- Address Autocomplete using OpenStreetMap ---
+    let timeout;
+    addressSearch.addEventListener("input", () => {
+      clearTimeout(timeout);
+      const query = addressSearch.value.trim();
+      suggestionsBox.innerHTML = "";
+      if (query.length < 3) return;
+
+      timeout = setTimeout(async () => {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5&countrycodes=gb`;
+        const response = await fetch(url, { headers: { "User-Agent": "MyApp/1.0" } });
+        const results = await response.json();
+        if (!results.length) return;
+
+        results.forEach((r) => {
+          const div = document.createElement("div");
+          div.textContent = r.display_name;
+          div.addEventListener("click", () => {
+            addressSearch.value = r.display_name;
+            suggestionsBox.innerHTML = "";
+
+            const addr = r.address;
+            addressLine1.value = (addr.house_number ? addr.house_number + " " : "") + (addr.road || "");
+            postcode.value = addr.postcode || "";
+            country.value = addr.country || "United Kingdom";
+
+            validate(addressLine1);
+            validate(postcode);
+          });
+          suggestionsBox.appendChild(div);
+        });
+      }, 400);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!addressSearch.contains(e.target)) suggestionsBox.innerHTML = "";
+    });
+
+    // --- Submit ---
+    document.getElementById("infoForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      [nameInput, contactInput, addressLine1, postcode].forEach(validate);
+
+      if (
+        nameError.style.display === "none" &&
+        contactError.style.display === "none" &&
+        addressLine1Error.style.display === "none" &&
+        postcodeError.style.display === "none"
+      ) {
+        const userData = {
+          name: nameInput.value,
+          contact: contactInput.value,
+          address: {
+            search: addressSearch.value,
+            line1: addressLine1.value,
+            postcode: postcode.value,
+            country: country.value
+          },
+        };
+        localStorage.setItem("userInfo", JSON.stringify(userData));
+        alert("Information saved successfully!");
+      } else {
+        alert("Please fix the errors before submitting.");
+      }
+    });
+  </script>
+</body>
+
+</html>

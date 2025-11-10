@@ -36,32 +36,13 @@
     </nav>
     <div class="container">
         <div class="about">
-            <!--Change this to your story-->
-            <h2>About Cheese Factory</h2>
-            <p>We’re a family-run dairy crafting artisan cheeses in the heart of the countryside since 1985. Every wheel
-                is made by hand using local milk and traditional techniques, ensuring the finest taste and texture.</p>
-            <p>From our creamy cheddar to our adventurous seasonal blends, every bite supports sustainable farming and
-                British craftsmanship.</p>
-            <a href="about.html">Learn More</a>
+            <h1 id="message"></h1>
+            <a href="index.html">Go home</a>
         </div>
         <br>
-        <div class="featured">
-            <h2>Featured Products</h2>
-            <div class="product-grid" id="home-products"></div>
-        </div>
-        <br>
-        <div class="newsletter">
-            <!--Lean how to use thin in the instructions-->
-            <h2>Join Our Cheese Lovers Club</h2>
-            <p>Be the first to know about new flavors and special offers!</p>
-            <form id="newsletter-form">
-                <input type="email" id="newsletter-email" placeholder="Enter your email address" required>
-                <button type="submit" on>Subscribe</button>
-            </form>
-            <p id="newsletter-message" style="display:none;">Thanks for joining!</p>
-        </div>
     </div>
     <br>
+    <script src="script.js"></script>
     <footer>
         <!--Change this to your company (You have to change this one every page)-->
         <p>&copy; 2025 Cheese Factory. All rights reserved.</p>
@@ -74,13 +55,61 @@
             <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
         </div>
     </footer>
-
-    <script src="shop.js"></script>
-    <script src="script.js"></script>
-    <script src="news.js"></script>
     <script>
-        const homeContainer = document.getElementById('home-products');
-        loadProducts(homeContainer, { featuredOnly: true });
+        const backendUrl = "https://cheese-backend-x01h.onrender.com";
+        const backendUrl2 = "https://cheese-backend2.onrender.com";
+        document.addEventListener("DOMContentLoaded", async () => {
+            const params = new URLSearchParams(window.location.search);
+            const key = params.get("key");
+
+            if (!key) {
+                document.getElementById("message").textContent = "No payment confirmation key found.";
+                return;
+            }
+
+            try {
+                const res = await fetch(`${backendUrl}/verify-key?key=${key}`);
+                const data = await res.json();
+
+                if (data.valid) {
+                    const info = JSON.parse(localStorage.getItem("userInfo"));
+
+                    const cart2 = JSON.parse(localStorage.getItem("cart"));
+                    const itemIds = cart2.map(item => item.id);
+                    const itams = itemIds.join(",");
+
+                    const userData = {
+                        name: info.name,
+                        contact: info.contact,
+                        itams: itams,
+                        address: `${info.address.line1}, ${info.address.postcode}, ${info.address.country}`
+                    };
+
+                    try {
+                        const res2 = await fetch(`${backendUrl2}/shipping`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(userData)
+                        });
+
+                        const result = await res2.json();
+                        console.log("User info saved:", result);
+                    } catch (err) {
+                        console.error("Error saving user info:", err);
+                    }
+
+                    document.getElementById("message").textContent = "Payment confirmed.";
+                    localStorage.removeItem("cart");
+                } else {
+                    document.getElementById("message").textContent = "Error verifying payment. Contact us";
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById("message").textContent = "Error verifying payment. Contact us";
+            }
+        });
+
+
     </script>
 </body>
 
